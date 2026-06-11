@@ -347,6 +347,47 @@ h3 {
   color: var(--accent-dark);
 }
 
+.message-preview {
+  max-width: 680px;
+  margin-top: 30px;
+}
+
+.message-preview h3 {
+  font-size: 22px;
+}
+
+.empty-message {
+  color: var(--muted);
+}
+
+.message-list {
+  display: grid;
+  gap: 12px;
+}
+
+.message-item {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.message-item h4 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.message-item p {
+  margin-bottom: 10px;
+  color: var(--muted);
+}
+
+.message-item time {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .site-footer {
   width: min(1120px, calc(100% - 40px));
   margin: 0 auto;

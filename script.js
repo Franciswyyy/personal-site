@@ -3,6 +3,8 @@ const filterButtons = document.querySelectorAll(".filter-button");
 const projectCards = document.querySelectorAll(".card");
 const contactForm = document.querySelector(".contact-form");
 const formMessage = document.querySelector(".form-message");
+const emptyMessage = document.querySelector(".empty-message");
+const messageList = document.querySelector(".message-list");
 
 function updateThemeButton() {
   if (document.body.classList.contains("dark")) {
@@ -49,6 +51,22 @@ filterButtons.forEach(function (button) {
   });
 });
 
+function addMessagePreview(messageData) {
+  const messageItem = document.createElement("article");
+  const messageName = document.createElement("h4");
+  const messageText = document.createElement("p");
+  const messageTime = document.createElement("time");
+
+  messageItem.classList.add("message-item");
+  messageName.textContent = messageData.name;
+  messageText.textContent = messageData.message;
+  messageTime.textContent = messageData.createdAt;
+
+  messageItem.append(messageName, messageText, messageTime);
+  messageList.prepend(messageItem);
+  emptyMessage.hidden = true;
+}
+
 contactForm.addEventListener("submit", function (event) {
   event.preventDefault();
 
@@ -70,6 +88,14 @@ contactForm.addEventListener("submit", function (event) {
     return;
   }
 
+  const messageData = {
+    name: name,
+    email: email,
+    message: message,
+    createdAt: new Date().toLocaleString("zh-CN"),
+  };
+
+  addMessagePreview(messageData);
   formMessage.textContent = `收到，${name}。这条留言目前只在前端完成了校验，还没有发送到服务器。`;
   formMessage.classList.add("success");
   contactForm.reset();
