@@ -59,8 +59,15 @@
           <p>先从小而完整的作品开始，重点练习需求拆解、页面实现、部署和复盘。</p>
         </div>
 
+        <div class="project-filters" aria-label="项目筛选">
+          <button class="filter-button active" type="button" data-filter="all">全部</button>
+          <button class="filter-button" type="button" data-filter="website">网站</button>
+          <button class="filter-button" type="button" data-filter="tool">工具</button>
+          <button class="filter-button" type="button" data-filter="idea">想法</button>
+        </div>
+
         <div class="card-grid">
-          <article class="card">
+          <article class="card" data-category="website">
             <p class="card-kicker">Website</p>
             <h3>个人网站</h3>
             <p>用原生 HTML、CSS、JavaScript 搭建个人主页，并完成一次公网部署。</p>
@@ -71,7 +78,7 @@
             </ul>
           </article>
 
-          <article class="card">
+          <article class="card" data-category="tool">
             <p class="card-kicker">Tool</p>
             <h3>AI Chat Export</h3>
             <p>解析 ChatGPT 导出记录，支持搜索、预览，以及 Markdown / HTML / PDF 导出。</p>
@@ -82,7 +89,7 @@
             </ul>
           </article>
 
-          <article class="card">
+          <article class="card" data-category="idea">
             <p class="card-kicker">Next</p>
             <h3>效率工具占位</h3>
             <p>后续选择一个小型 AI、OCR 或效率工具，做成可部署、可演示的完整作品。</p>
