@@ -1,6 +1,8 @@
 const themeToggle = document.querySelector(".theme-toggle");
 const filterButtons = document.querySelectorAll(".filter-button");
 const projectCards = document.querySelectorAll(".card");
+const contactForm = document.querySelector(".contact-form");
+const formMessage = document.querySelector(".form-message");
 
 function updateThemeButton() {
   if (document.body.classList.contains("dark")) {
@@ -45,4 +47,30 @@ filterButtons.forEach(function (button) {
       card.hidden = !matchesFilter;
     });
   });
+});
+
+contactForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  const name = contactForm.elements.name.value.trim();
+  const email = contactForm.elements.email.value.trim();
+  const message = contactForm.elements.message.value.trim();
+
+  formMessage.classList.remove("error", "success");
+
+  if (name === "" || email === "" || message === "") {
+    formMessage.textContent = "请把称呼、邮箱和留言都填写完整。";
+    formMessage.classList.add("error");
+    return;
+  }
+
+  if (!email.includes("@")) {
+    formMessage.textContent = "请填写一个包含 @ 的邮箱地址。";
+    formMessage.classList.add("error");
+    return;
+  }
+
+  formMessage.textContent = `收到，${name}。这条留言目前只在前端完成了校验，还没有发送到服务器。`;
+  formMessage.classList.add("success");
+  contactForm.reset();
 });

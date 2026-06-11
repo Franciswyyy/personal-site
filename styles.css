@@ -292,6 +292,61 @@ h3 {
   font-weight: 700;
 }
 
+.contact-form {
+  display: grid;
+  gap: 16px;
+  max-width: 680px;
+}
+
+.contact-form label {
+  display: grid;
+  gap: 8px;
+  color: var(--text);
+  font-weight: 800;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+.contact-form input {
+  min-height: 44px;
+  padding: 0 12px;
+}
+
+.contact-form textarea {
+  min-height: 140px;
+  padding: 12px;
+  resize: vertical;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: var(--accent);
+  outline: 3px solid var(--hover);
+}
+
+.form-message {
+  min-height: 28px;
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.form-message.error {
+  color: #c2410c;
+}
+
+.form-message.success {
+  color: var(--accent-dark);
+}
+
 .site-footer {
   width: min(1120px, calc(100% - 40px));
   margin: 0 auto;

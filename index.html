@@ -129,6 +129,34 @@
           </article>
         </div>
       </section>
+
+      <section id="contact" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Contact</p>
+          <h2>联系我</h2>
+          <p>先做一个前端表单练习：不发送真实邮件，只在浏览器里完成输入校验和反馈。</p>
+        </div>
+
+        <form class="contact-form" novalidate>
+          <label>
+            <span>你的称呼</span>
+            <input name="name" type="text" autocomplete="name" />
+          </label>
+
+          <label>
+            <span>邮箱</span>
+            <input name="email" type="email" autocomplete="email" />
+          </label>
+
+          <label>
+            <span>想说的话</span>
+            <textarea name="message" rows="5"></textarea>
+          </label>
+
+          <button class="button primary" type="submit">提交预览</button>
+          <p class="form-message" aria-live="polite"></p>
+        </form>
+      </section>
     </main>
 
     <footer id="about" class="site-footer">
