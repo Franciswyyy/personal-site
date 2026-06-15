@@ -219,8 +219,18 @@
         </button>
       </div>
 
+      <h2 class="section-title" v-if="showProjects">项目列表：组件化版本</h2>
       <ul class="project-list" v-if="showProjects">
-        <li class="project-card" v-for="project in filteredProjects" :key="project.id">
+        <project-card
+          v-for="project in filteredProjects"
+          :key="project.id"
+          :project="project"
+        ></project-card>
+      </ul>
+
+      <h2 class="section-title" v-if="showProjects">项目列表：直写对照版</h2>
+      <ul class="project-list" v-if="showProjects">
+        <li class="project-card" v-for="project in filteredProjects" :key="`inline-${project.id}`">
           <h3>{{ project.name }}</h3>
           <p>{{ project.description }}</p>
           <span>{{ project.category }}</span>

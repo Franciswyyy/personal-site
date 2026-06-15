@@ -1,6 +1,19 @@
 const { createApp } = Vue;
 
 createApp({
+  components: {
+    "project-card": {
+      props: ["project"],
+      template: `
+        <li class="project-card">
+          <h3>{{ project.name }}</h3>
+          <p>{{ project.description }}</p>
+          <span>{{ project.category }}</span>
+        </li>
+      `,
+    },
+  },
+
   data() {
     return {
       title: "Vue Counter",
