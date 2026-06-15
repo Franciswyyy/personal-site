@@ -9,6 +9,7 @@ createApp({
           <h3>{{ project.name }}</h3>
           <p>{{ project.description }}</p>
           <span>{{ project.category }}</span>
+          <button @click="$emit('select', project)">选择项目</button>
         </li>
       `,
     },
@@ -23,6 +24,7 @@ createApp({
       messageDraft: "",
       nextMessageId: 1,
       messages: [],
+      selectedProjectName: "",
       selectedCategory: "All",
       categories: ["All", "Frontend", "Writing", "Learning"],
       projects: [
@@ -93,6 +95,10 @@ createApp({
 
     selectCategory(category) {
       this.selectedCategory = category;
+    },
+
+    selectProject(project) {
+      this.selectedProjectName = project.name;
     },
 
     saveMessage() {

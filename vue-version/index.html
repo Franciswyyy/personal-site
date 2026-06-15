@@ -225,8 +225,12 @@
           v-for="project in filteredProjects"
           :key="project.id"
           :project="project"
+          @select="selectProject"
         ></project-card>
       </ul>
+      <p class="status" v-if="selectedProjectName">
+        当前选择的项目：{{ selectedProjectName }}
+      </p>
 
       <h2 class="section-title" v-if="showProjects">项目列表：直写对照版</h2>
       <ul class="project-list" v-if="showProjects">
