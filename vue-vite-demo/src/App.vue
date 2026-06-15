@@ -4,6 +4,10 @@ import ProjectCard from './components/ProjectCard.vue'
 
 const count = ref(0)
 const selectedCategory = ref('All')
+const visitorName = ref('')
+const messageDraft = ref('')
+const nextMessageId = ref(1)
+const messages = ref(loadMessages())
 
 const categories = ['All', 'Frontend', 'Writing', 'Learning']
 
@@ -47,6 +51,47 @@ const filteredProjects = computed(() => {
 
   return projects.filter((project) => project.category === selectedCategory.value)
 })
+
+function loadMessages() {
+  const savedMessages = localStorage.getItem('vite-demo-messages')
+
+  if (!savedMessages) {
+    return []
+  }
+
+  const parsedMessages = JSON.parse(savedMessages)
+  nextMessageId.value = Math.max(...parsedMessages.map((message) => message.id), 0) + 1
+  return parsedMessages
+}
+
+function saveMessagesToStorage() {
+  localStorage.setItem('vite-demo-messages', JSON.stringify(messages.value))
+}
+
+function saveMessage() {
+  const text = messageDraft.value.trim()
+
+  if (text === '') {
+    return
+  }
+
+  messages.value.push({
+    id: nextMessageId.value,
+    name: visitorName.value.trim() || '匿名访客',
+    text,
+  })
+
+  nextMessageId.value += 1
+  visitorName.value = ''
+  messageDraft.value = ''
+  saveMessagesToStorage()
+}
+
+function clearMessages() {
+  messages.value = []
+  nextMessageId.value = 1
+  saveMessagesToStorage()
+}
 </script>
 
 <template>
@@ -80,6 +125,38 @@ const filteredProjects = computed(() => {
       <ul class="project-list">
         <ProjectCard v-for="project in filteredProjects" :key="project.id" :project="project" />
       </ul>
+    </section>
+
+    <section>
+      <h2>留言预览</h2>
+      <form class="message-form" @submit.prevent="saveMessage">
+        <label>
+          你的名字
+          <input v-model="visitorName" placeholder="例如：Francis" />
+        </label>
+
+        <label>
+          留言内容
+          <textarea v-model="messageDraft" placeholder="写一句想展示在页面上的话"></textarea>
+        </label>
+
+        <button type="submit" :disabled="messageDraft.trim() === ''">保存留言</button>
+      </form>
+
+      <div class="preview">
+        <strong>{{ visitorName || '匿名访客' }}</strong>
+        <p>{{ messageDraft || '这里会实时显示你的留言内容。' }}</p>
+      </div>
+
+      <button v-if="messages.length > 0" @click="clearMessages">清空留言</button>
+
+      <ul class="message-list" v-if="messages.length > 0">
+        <li class="message-item" v-for="message in messages" :key="message.id">
+          <strong>{{ message.name }}</strong>
+          <p>{{ message.text }}</p>
+        </li>
+      </ul>
+      <p class="empty-message" v-else>还没有保存的留言。</p>
     </section>
   </main>
 </template>
