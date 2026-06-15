@@ -112,6 +112,45 @@
         color: #4b5563;
         background: #fbfcfe;
       }
+
+      .message-form {
+        display: grid;
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        color: #374151;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 12px;
+        border: 1px solid #c8d1df;
+        border-radius: 6px;
+        font: inherit;
+      }
+
+      textarea {
+        min-height: 90px;
+        resize: vertical;
+      }
+
+      .preview {
+        padding: 16px;
+        border: 1px solid #d8dee8;
+        border-radius: 8px;
+        background: #fbfcfe;
+      }
+
+      .preview strong {
+        display: block;
+        margin-bottom: 6px;
+      }
     </style>
   </head>
   <body>
@@ -144,6 +183,24 @@
         </li>
       </ul>
       <p class="empty-message" v-else>项目列表已隐藏。</p>
+
+      <h2 class="section-title">留言预览</h2>
+      <form class="message-form">
+        <label>
+          你的名字
+          <input v-model="visitorName" placeholder="例如：Francis" />
+        </label>
+
+        <label>
+          留言内容
+          <textarea v-model="messageDraft" placeholder="写一句想展示在页面上的话"></textarea>
+        </label>
+      </form>
+
+      <div class="preview">
+        <strong>{{ visitorName || "匿名访客" }}</strong>
+        <p>{{ messageDraft || "这里会实时显示你的留言内容。" }}</p>
+      </div>
     </main>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>

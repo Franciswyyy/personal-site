@@ -6,6 +6,8 @@ createApp({
       title: "Vue Counter",
       count: 0,
       showProjects: true,
+      visitorName: "",
+      messageDraft: "",
       projects: [
         {
           id: 1,
