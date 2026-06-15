@@ -8,6 +8,8 @@ createApp({
       showProjects: true,
       visitorName: "",
       messageDraft: "",
+      nextMessageId: 1,
+      messages: [],
       selectedCategory: "All",
       categories: ["All", "Frontend", "Writing", "Learning"],
       projects: [
@@ -55,6 +57,10 @@ createApp({
     },
   },
 
+  mounted() {
+    this.loadMessages();
+  },
+
   methods: {
     increase() {
       this.count += 1;
@@ -74,6 +80,52 @@ createApp({
 
     selectCategory(category) {
       this.selectedCategory = category;
+    },
+
+    saveMessage() {
+      const text = this.messageDraft.trim();
+
+      if (text === "") {
+        return;
+      }
+
+      this.messages.push({
+        id: this.nextMessageId,
+        name: this.visitorName.trim() || "匿名访客",
+        text,
+      });
+
+      this.nextMessageId += 1;
+      this.visitorName = "";
+      this.messageDraft = "";
+
+      // Keep the side effect explicit: this action changes messages, then saves them.
+      this.saveMessagesToStorage();
+    },
+
+    clearMessages() {
+      this.messages = [];
+      this.nextMessageId = 1;
+
+      // Clearing the page state should also clear the persisted browser copy.
+      this.saveMessagesToStorage();
+    },
+
+    loadMessages() {
+      // localStorage stores strings, so saved message arrays need JSON.parse.
+      const savedMessages = localStorage.getItem("vue-demo-messages");
+
+      if (!savedMessages) {
+        return;
+      }
+
+      this.messages = JSON.parse(savedMessages);
+      this.nextMessageId = Math.max(...this.messages.map((message) => message.id), 0) + 1;
+    },
+
+    saveMessagesToStorage() {
+      // Convert the messages array to a string before storing it in the browser.
+      localStorage.setItem("vue-demo-messages", JSON.stringify(this.messages));
     },
   },
 }).mount("#app");

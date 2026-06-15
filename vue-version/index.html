@@ -164,6 +164,26 @@
         display: block;
         margin-bottom: 6px;
       }
+
+      .message-list {
+        display: grid;
+        gap: 12px;
+        padding: 0;
+        margin: 16px 0 0;
+        list-style: none;
+      }
+
+      .message-item {
+        padding: 14px;
+        border: 1px solid #d8dee8;
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .message-item strong {
+        display: block;
+        margin-bottom: 6px;
+      }
     </style>
   </head>
   <body>
@@ -209,7 +229,7 @@
       <p class="empty-message" v-else>项目列表已隐藏。</p>
 
       <h2 class="section-title">留言预览</h2>
-      <form class="message-form">
+      <form class="message-form" @submit.prevent="saveMessage">
         <label>
           你的名字
           <input v-model="visitorName" placeholder="例如：Francis" />
@@ -219,12 +239,24 @@
           留言内容
           <textarea v-model="messageDraft" placeholder="写一句想展示在页面上的话"></textarea>
         </label>
+
+        <button type="submit" :disabled="messageDraft.trim() === ''">保存留言</button>
       </form>
 
       <div class="preview">
         <strong>{{ visitorName || "匿名访客" }}</strong>
         <p>{{ messageDraft || "这里会实时显示你的留言内容。" }}</p>
       </div>
+
+      <button v-if="messages.length > 0" @click="clearMessages">清空留言</button>
+
+      <ul class="message-list" v-if="messages.length > 0">
+        <li class="message-item" v-for="message in messages" :key="message.id">
+          <strong>{{ message.name }}</strong>
+          <p>{{ message.text }}</p>
+        </li>
+      </ul>
+      <p class="empty-message" v-else>还没有保存的留言。</p>
     </main>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
