@@ -8,6 +8,8 @@ createApp({
       showProjects: true,
       visitorName: "",
       messageDraft: "",
+      selectedCategory: "All",
+      categories: ["All", "Frontend", "Writing", "Learning"],
       projects: [
         {
           id: 1,
@@ -43,6 +45,14 @@ createApp({
 
       return "当前数字是负数。";
     },
+
+    filteredProjects() {
+      if (this.selectedCategory === "All") {
+        return this.projects;
+      }
+
+      return this.projects.filter((project) => project.category === this.selectedCategory);
+    },
   },
 
   methods: {
@@ -60,6 +70,10 @@ createApp({
 
     toggleProjects() {
       this.showProjects = !this.showProjects;
+    },
+
+    selectCategory(category) {
+      this.selectedCategory = category;
     },
   },
 }).mount("#app");
