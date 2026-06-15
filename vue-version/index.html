@@ -58,8 +58,16 @@
         color: #4b5563;
       }
 
-      .section-title {
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
         margin: 32px 0 12px;
+      }
+
+      .section-title {
+        margin: 0;
         font-size: 20px;
       }
 
@@ -96,6 +104,14 @@
         color: #334155;
         font-size: 14px;
       }
+
+      .empty-message {
+        padding: 16px;
+        border: 1px dashed #c8d1df;
+        border-radius: 8px;
+        color: #4b5563;
+        background: #fbfcfe;
+      }
     </style>
   </head>
   <body>
@@ -113,14 +129,21 @@
 
       <p class="status">{{ countMessage }}</p>
 
-      <h2 class="section-title">项目列表</h2>
-      <ul class="project-list">
+      <div class="toolbar">
+        <h2 class="section-title">项目列表</h2>
+        <button @click="toggleProjects">
+          {{ showProjects ? "隐藏项目" : "显示项目" }}
+        </button>
+      </div>
+
+      <ul class="project-list" v-if="showProjects">
         <li class="project-card" v-for="project in projects" :key="project.id">
           <h3>{{ project.name }}</h3>
           <p>{{ project.description }}</p>
           <span>{{ project.category }}</span>
         </li>
       </ul>
+      <p class="empty-message" v-else>项目列表已隐藏。</p>
     </main>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>

@@ -5,6 +5,7 @@ createApp({
     return {
       title: "Vue Counter",
       count: 0,
+      showProjects: true,
       projects: [
         {
           id: 1,
@@ -53,6 +54,10 @@ createApp({
 
     reset() {
       this.count = 0;
+    },
+
+    toggleProjects() {
+      this.showProjects = !this.showProjects;
     },
   },
 }).mount("#app");
