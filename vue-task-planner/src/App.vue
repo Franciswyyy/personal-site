@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import TaskFilters from './components/TaskFilters.vue'
+import TaskForm from './components/TaskForm.vue'
 import TaskList from './components/TaskList.vue'
 import TaskStats from './components/TaskStats.vue'
 
@@ -199,56 +200,16 @@ watch(
       </p>
     </section>
 
-    <section class="panel task-form-panel" aria-labelledby="form-title">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Form</p>
-          <h2 id="form-title">新增 / 编辑任务</h2>
-        </div>
-        <span class="helper-text">填写任务信息后，可以新增或保存修改</span>
-      </div>
-
-      <form class="task-form">
-        <label class="field field-wide">
-          <span>任务标题</span>
-          <input v-model="form.title" type="text" placeholder="例如：学习 Vue 事件处理" />
-        </label>
-
-        <label class="field">
-          <span>分类</span>
-          <select v-model="form.category">
-            <option v-for="category in categories" :key="category" :value="category">
-              {{ category }}
-            </option>
-          </select>
-        </label>
-
-        <label class="field">
-          <span>优先级</span>
-          <select v-model="form.priority">
-            <option>低</option>
-            <option>中</option>
-            <option>高</option>
-          </select>
-        </label>
-
-        <label class="field field-wide">
-          <span>备注</span>
-          <textarea v-model="form.note" placeholder="写一点学习目标或补充说明"></textarea>
-        </label>
-
-        <div class="form-actions">
-          <button class="primary-button"
-                  type="button"
-                  @click="submitTask">
-            {{editingTaskId === null ? '添加任务' : '保存修改'}}
-          </button>
-          <button class="ghost-button"
-                  type="button"
-                  @click="clearForm">清空</button>
-        </div>
-      </form>
-    </section>
+    <TaskForm
+      v-model:title="form.title"
+      v-model:category="form.category"
+      v-model:priority="form.priority"
+      v-model:note="form.note"
+      :categories="categories"
+      :is-editing="editingTaskId !== null"
+      @submit-task="submitTask"
+      @clear-form="clearForm"
+    />
 
     <section class="toolbar" aria-label="筛选和统计">
       <TaskFilters
