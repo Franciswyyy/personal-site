@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted, watch} from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const categories = ['Vue', 'CSS', 'JavaScript', '项目', '其他']
 const TASK_STORAGE_KEY = 'vue-task-planner-cache'
@@ -151,21 +151,37 @@ function editTask(task){
   }
 }
 
-onMounted(() => {
-  const savedTask = localStorage.getItem(TASK_STORAGE_KEY)
+function clearLocalStorage() {
+  localStorage.removeItem(TASK_STORAGE_KEY)
+}
 
-  if (!savedTask) {
+onMounted(() => {
+  const savedTasks = localStorage.getItem(TASK_STORAGE_KEY)
+
+  if (!savedTasks) {
     return
   }
 
-  tasks.value = JSON.parse(savedTask)
+  try {
+    const parsedTasks = JSON.parse(savedTasks)
+
+    if (!Array.isArray(parsedTasks)) {
+      localStorage.removeItem(TASK_STORAGE_KEY)
+      return
+    }
+
+    tasks.value = parsedTasks
+  } catch {
+    localStorage.removeItem(TASK_STORAGE_KEY)
+  }
 })
 
 watch(
-    tasks, (newTasks) => {
-      localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(newTasks))
-    },
-    {deep:true}
+  tasks,
+  (newTasks) => {
+    localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(newTasks))
+  },
+  { deep: true },
 )
 
 </script>
@@ -176,7 +192,7 @@ watch(
       <p class="eyebrow">Vue 练习项目 01</p>
       <h1>学习计划管理器</h1>
       <p class="intro">
-        先把页面结构搭出来：表单负责收集输入，筛选区负责改变视图，列表负责展示任务数据。
+        用一个小任务清单练习表单输入、列表渲染、筛选和浏览器本地缓存。
       </p>
     </section>
 
@@ -186,7 +202,7 @@ watch(
           <p class="eyebrow">Form</p>
           <h2 id="form-title">新增 / 编辑任务</h2>
         </div>
-        <span class="helper-text">这一版先展示表单，不提交数据</span>
+        <span class="helper-text">填写任务信息后，可以新增或保存修改</span>
       </div>
 
       <form class="task-form">
@@ -284,8 +300,16 @@ watch(
           <p class="eyebrow">List</p>
           <h2 id="list-title">任务列表</h2>
         </div>
-        <span class="helper-text">下一步会让这些按钮真正改变任务状态</span>
+        <div class="section-actions">
+          <span class="helper-text">任务变化会保存到当前浏览器</span>
+          <button class="danger-button"
+                  type="button"
+                  @click="clearLocalStorage">
+            清除本地缓存
+          </button>
+        </div>
       </div>
+
       <p v-if="tasks.length === 0" class="empty-state">
         还没有任务，先添加一个学习计划吧。
       </p>
