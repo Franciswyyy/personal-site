@@ -1,8 +1,5 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import TaskFilters from './components/TaskFilters.vue'
-import TaskList from './components/TaskList.vue'
-import TaskStats from './components/TaskStats.vue'
 
 const categories = ['Vue', 'CSS', 'JavaScript', '项目', '其他']
 const TASK_STORAGE_KEY = 'vue-task-planner-cache'
@@ -251,26 +248,100 @@ watch(
     </section>
 
     <section class="toolbar" aria-label="筛选和统计">
-      <TaskFilters
-        v-model:status-filter="statusFilter"
-        v-model:category-filter="categoryFilter"
-        :categories="categories"
-      />
+      <div class="panel filters">
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">Filters</p>
+            <h2>筛选区</h2>
+          </div>
+        </div>
 
-      <TaskStats
-        :total-count="totalCount"
-        :pending-count="pendingCount"
-        :done-count="doneCount"
-      />
+        <div class="filter-grid">
+          <label class="field">
+            <span>状态</span>
+            <select v-model="statusFilter">
+              <option>全部</option>
+              <option>未完成</option>
+              <option>已完成</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>分类</span>
+            <select v-model="categoryFilter">
+              <option>全部</option>
+              <option v-for="category in categories" :key="category" :value="category">
+                {{ category }}
+              </option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="panel stats">
+        <div class="stat-item">
+          <span>总任务</span>
+          <strong>{{ totalCount }}</strong>
+        </div>
+        <div class="stat-item">
+          <span>未完成</span>
+          <strong>{{ pendingCount }}</strong>
+        </div>
+        <div class="stat-item">
+          <span>已完成</span>
+          <strong>{{ doneCount }}</strong>
+        </div>
+      </div>
     </section>
 
-    <TaskList
-      :tasks="tasks"
-      :filtered-tasks="filteredTasks"
-      @clear-local-storage="clearLocalStorage"
-      @toggle-task="toggleTask"
-      @edit-task="editTask"
-      @delete-task="deleteTask"
-    />
+    <section class="panel task-list-panel" aria-labelledby="list-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">List</p>
+          <h2 id="list-title">任务列表</h2>
+        </div>
+        <div class="section-actions">
+          <span class="helper-text">任务变化会保存到当前浏览器</span>
+          <button class="danger-button"
+                  type="button"
+                  @click="clearLocalStorage">
+            清除本地缓存
+          </button>
+        </div>
+      </div>
+
+      <p v-if="tasks.length === 0" class="empty-state">
+        还没有任务，先添加一个学习计划吧。
+      </p>
+      <p v-else-if="filteredTasks.length === 0" class="empty-state">
+        当前没有符合条件的任务。可以调整筛选条件，或者添加一个新任务。
+      </p>
+      <ul v-else class="task-list">
+        <li v-for="task in filteredTasks" :key="task.id" class="task-item" :class="{ done: task.done }">
+          <label class="task-check">
+            <input type="checkbox"
+                   :checked="task.done"
+                   @change="toggleTask(task)" />
+            <span class="check-label">{{ task.done ? '已完成' : '未完成' }}</span>
+          </label>
+
+          <div class="task-content">
+            <h3>{{ task.title }}</h3>
+            <p>{{ task.note }}</p>
+            <div class="task-meta">
+              <span>{{ task.category }}</span>
+              <span>优先级：{{ task.priority }}</span>
+            </div>
+          </div>
+
+          <div class="task-actions">
+            <button type="button"
+                    @click="editTask(task)">编辑</button>
+            <button type="button"
+                    @click="deleteTask(task.id)">删除</button>
+          </div>
+        </li>
+      </ul>
+    </section>
   </main>
 </template>
