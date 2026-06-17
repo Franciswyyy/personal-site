@@ -1,7 +1,8 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, watch} from 'vue'
 
 const categories = ['Vue', 'CSS', 'JavaScript', '项目', '其他']
+const TASK_STORAGE_KEY = 'vue-task-planner-cache'
 
 const form = ref({
   title: '',
@@ -12,6 +13,8 @@ const form = ref({
 
 const statusFilter = ref('全部')
 const categoryFilter = ref('全部')
+const editingTaskId = ref(null)
+
 
 const tasks = ref([
   {
@@ -45,6 +48,27 @@ const doneCount = computed(() => tasks.value.filter((task) => task.done).length)
 const pendingCount = computed(() => totalCount.value - doneCount.value)
 
 
+const filteredTasks = computed(() => {
+  // tasks = tasks.value.filter((task) => statusFilter.value === "全部" || task.done == statusFilter.value
+  //     || categoryFilter.value === "全部" || task.category === categoryFilter.value)
+  //
+  let result = tasks.value
+
+  if (statusFilter.value === '未完成') {
+    result = result.filter((task) => !task.done)
+  }
+
+  if (statusFilter.value === '已完成') {
+    result = result.filter((task) => task.done)
+  }
+
+  if (categoryFilter.value !== '全部') {
+    result = result.filter((task) => task.category === categoryFilter.value)
+  }
+  return result
+})
+
+
 function submitTask(){
   // 判断值不能为空
   // 读取里面的值，然后 提交到task
@@ -56,15 +80,37 @@ function submitTask(){
     return
   }
 
-  tasks.value.push({
-    id: Date.now(),
-    title: title,
-    category: form.value.category,
-    priority: form.value.priority,
-    done: false,
-    note: form.value.note,
-  })
+  // const id_v2 = editingTaskId === null ? Date.now() : editingTaskId.value
 
+  if (editingTaskId.value === null) {
+    tasks.value.push({
+      id: Date.now(),
+      title: title,
+      category: form.value.category,
+      priority: form.value.priority,
+      done: false,
+      note: form.value.note,
+    })
+  } else {
+    const task = tasks.value.find((task) => task.id === editingTaskId.value)
+    if (!task) {
+      return
+    }
+
+    // task.value = {
+    //   title: title,
+    //   category: form.value.category,
+    //   priority: form.value.priority,
+    //   note: form.value.note,
+    // }
+
+    task.title = title
+    task.category = form.value.category
+    task.priority = form.value.priority
+    task.note = form.value.note
+
+
+  }
   clearForm()
 }
 
@@ -75,6 +121,7 @@ function clearForm(){
     priority: '中',
     note: '',
   }
+  editingTaskId.value = null
 }
 
 function toggleTask(task) {
@@ -89,6 +136,37 @@ function deleteTask(taskId){
   // 过滤其中一个
   tasks.value = tasks.value.filter((task) => task.id !== taskId)
 }
+
+function editTask(task){
+
+  // // 过滤拿到这个的值，然后回填到列表。
+  // const editTask = tasks.value.filter((task) => task.id === taskId)
+
+  editingTaskId.value = task.id
+  form.value = {
+    title: task.title,
+    category: task.category,
+    priority: task.priority,
+    note: task.note,
+  }
+}
+
+onMounted(() => {
+  const savedTask = localStorage.getItem(TASK_STORAGE_KEY)
+
+  if (!savedTask) {
+    return
+  }
+
+  tasks.value = JSON.parse(savedTask)
+})
+
+watch(
+    tasks, (newTasks) => {
+      localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(newTasks))
+    },
+    {deep:true}
+)
 
 </script>
 
@@ -143,7 +221,9 @@ function deleteTask(taskId){
         <div class="form-actions">
           <button class="primary-button"
                   type="button"
-                  @click="submitTask">添加任务</button>
+                  @click="submitTask">
+            {{editingTaskId === null ? '添加任务' : '保存修改'}}
+          </button>
           <button class="ghost-button"
                   type="button"
                   @click="clearForm">清空</button>
@@ -206,9 +286,14 @@ function deleteTask(taskId){
         </div>
         <span class="helper-text">下一步会让这些按钮真正改变任务状态</span>
       </div>
-
-      <ul class="task-list">
-        <li v-for="task in tasks" :key="task.id" class="task-item" :class="{ done: task.done }">
+      <p v-if="tasks.length === 0" class="empty-state">
+        还没有任务，先添加一个学习计划吧。
+      </p>
+      <p v-else-if="filteredTasks.length === 0" class="empty-state">
+        当前没有符合条件的任务。可以调整筛选条件，或者添加一个新任务。
+      </p>
+      <ul v-else class="task-list">
+        <li v-for="task in filteredTasks" :key="task.id" class="task-item" :class="{ done: task.done }">
           <label class="task-check">
             <input type="checkbox"
                    :checked="task.done"
@@ -226,7 +311,8 @@ function deleteTask(taskId){
           </div>
 
           <div class="task-actions">
-            <button type="button">编辑</button>
+            <button type="button"
+                    @click="editTask(task)">编辑</button>
             <button type="button"
                     @click="deleteTask(task.id)">删除</button>
           </div>
