@@ -19,7 +19,6 @@ const statusFilter = ref('全部')
 const categoryFilter = ref('全部')
 const editingTaskId = ref(null)
 
-
 const tasks = ref([
   {
     id: 1,
@@ -51,11 +50,7 @@ const totalCount = computed(() => tasks.value.length)
 const doneCount = computed(() => tasks.value.filter((task) => task.done).length)
 const pendingCount = computed(() => totalCount.value - doneCount.value)
 
-
 const filteredTasks = computed(() => {
-  // tasks = tasks.value.filter((task) => statusFilter.value === "全部" || task.done == statusFilter.value
-  //     || categoryFilter.value === "全部" || task.category === categoryFilter.value)
-  //
   let result = tasks.value
 
   if (statusFilter.value === '未完成') {
@@ -69,22 +64,15 @@ const filteredTasks = computed(() => {
   if (categoryFilter.value !== '全部') {
     result = result.filter((task) => task.category === categoryFilter.value)
   }
+
   return result
 })
 
-
-function submitTask(){
-  // 判断值不能为空
-  // 读取里面的值，然后 提交到task
-
-  // 这几个数字的应该是自己会变的。
-
-  const title = form.value.title.trim();
+function submitTask() {
+  const title = form.value.title.trim()
   if (!title) {
     return
   }
-
-  // const id_v2 = editingTaskId === null ? Date.now() : editingTaskId.value
 
   if (editingTaskId.value === null) {
     tasks.value.push({
@@ -101,24 +89,16 @@ function submitTask(){
       return
     }
 
-    // task.value = {
-    //   title: title,
-    //   category: form.value.category,
-    //   priority: form.value.priority,
-    //   note: form.value.note,
-    // }
-
     task.title = title
     task.category = form.value.category
     task.priority = form.value.priority
     task.note = form.value.note
-
-
   }
+
   clearForm()
 }
 
-function clearForm(){
+function clearForm() {
   form.value = {
     title: '',
     category: 'Vue',
@@ -132,20 +112,11 @@ function toggleTask(task) {
   task.done = !task.done
 }
 
-
-function deleteTask(taskId){
-  // const task = tasks.value.find((task) => task.id === taskId)
-  // if (!task) return
-
-  // 过滤其中一个
+function deleteTask(taskId) {
   tasks.value = tasks.value.filter((task) => task.id !== taskId)
 }
 
-function editTask(task){
-
-  // // 过滤拿到这个的值，然后回填到列表。
-  // const editTask = tasks.value.filter((task) => task.id === taskId)
-
+function editTask(task) {
   editingTaskId.value = task.id
   form.value = {
     title: task.title,
@@ -187,7 +158,6 @@ watch(
   },
   { deep: true },
 )
-
 </script>
 
 <template>

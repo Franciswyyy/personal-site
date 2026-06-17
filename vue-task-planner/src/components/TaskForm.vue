@@ -45,7 +45,11 @@ const emit = defineEmits([
           :value="category"
           @change="emit('update:category', $event.target.value)"
         >
-          <option v-for="categoryOption in categories" :key="categoryOption" :value="categoryOption">
+          <option
+            v-for="categoryOption in categories"
+            :key="categoryOption"
+            :value="categoryOption"
+          >
             {{ categoryOption }}
           </option>
         </select>
