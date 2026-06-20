@@ -4,9 +4,12 @@ import TaskItem from './TaskItem.vue'
 defineProps({
   tasks: Array,
   filteredTasks: Array,
+  isLoading: Boolean,
+  activeTaskId: Number,
+  errorMessage: String,
 })
 
-const emit = defineEmits(['clear-local-storage', 'toggle-task', 'edit-task', 'delete-task'])
+const emit = defineEmits(['reload-tasks', 'toggle-task', 'edit-task', 'delete-task'])
 </script>
 
 <template>
@@ -17,18 +20,24 @@ const emit = defineEmits(['clear-local-storage', 'toggle-task', 'edit-task', 'de
         <h2 id="list-title">任务列表</h2>
       </div>
       <div class="section-actions">
-        <span class="helper-text">任务变化会保存到当前浏览器</span>
+        <span class="helper-text">任务列表来自后端接口</span>
         <button
-          class="danger-button"
+          class="ghost-button"
           type="button"
-          @click="emit('clear-local-storage')"
+          @click="emit('reload-tasks')"
         >
-          清除本地缓存
+          重新加载
         </button>
       </div>
     </div>
 
-    <p v-if="tasks.length === 0" class="empty-state">
+    <p v-if="isLoading" class="empty-state">
+      正在从后端加载任务...
+    </p>
+    <p v-else-if="errorMessage" class="empty-state">
+      {{ errorMessage }}
+    </p>
+    <p v-else-if="tasks.length === 0" class="empty-state">
       还没有任务，先添加一个学习计划吧。
     </p>
     <p v-else-if="filteredTasks.length === 0" class="empty-state">
@@ -39,6 +48,7 @@ const emit = defineEmits(['clear-local-storage', 'toggle-task', 'edit-task', 'de
         v-for="task in filteredTasks"
         :key="task.id"
         :task="task"
+        :is-busy="activeTaskId === task.id"
         @toggle-task="emit('toggle-task', $event)"
         @edit-task="emit('edit-task', $event)"
         @delete-task="emit('delete-task', $event)"

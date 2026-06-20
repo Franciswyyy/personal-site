@@ -1,6 +1,7 @@
 <script setup>
 defineProps({
   task: Object,
+  isBusy: Boolean,
 })
 
 const emit = defineEmits(['toggle-task', 'edit-task', 'delete-task'])
@@ -12,6 +13,7 @@ const emit = defineEmits(['toggle-task', 'edit-task', 'delete-task'])
       <input
         type="checkbox"
         :checked="task.done"
+        :disabled="isBusy"
         @change="emit('toggle-task', task)"
       />
       <span class="check-label">{{ task.done ? '已完成' : '未完成' }}</span>
@@ -29,15 +31,17 @@ const emit = defineEmits(['toggle-task', 'edit-task', 'delete-task'])
     <div class="task-actions">
       <button
         type="button"
+        :disabled="isBusy"
         @click="emit('edit-task', task)"
       >
         编辑
       </button>
       <button
         type="button"
+        :disabled="isBusy"
         @click="emit('delete-task', task.id)"
       >
-        删除
+        {{ isBusy ? '处理中...' : '删除' }}
       </button>
     </div>
   </li>

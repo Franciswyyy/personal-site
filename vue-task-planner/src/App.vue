@@ -1,12 +1,18 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import {
+  createTask as createTaskApi,
+  deleteTask as deleteTaskApi,
+  getTasks,
+  toggleTaskStatus,
+  updateTask as updateTaskApi,
+} from './api/taskApi'
 import TaskFilters from './components/TaskFilters.vue'
 import TaskForm from './components/TaskForm.vue'
 import TaskList from './components/TaskList.vue'
 import TaskStats from './components/TaskStats.vue'
 
-const categories = ['Vue', 'CSS', 'JavaScript', '项目', '其他']
-const TASK_STORAGE_KEY = 'vue-task-planner-cache'
+const defaultCategories = ['Vue', 'CSS', 'JavaScript', '项目', '其他']
 
 const form = ref({
   title: '',
@@ -18,34 +24,17 @@ const form = ref({
 const statusFilter = ref('全部')
 const categoryFilter = ref('全部')
 const editingTaskId = ref(null)
+const isLoading = ref(false)
+const isSaving = ref(false)
+const activeTaskId = ref(null)
+const errorMessage = ref('')
 
-const tasks = ref([
-  {
-    id: 1,
-    title: '复习 Vue 的 ref 和 template 渲染',
-    category: 'Vue',
-    priority: '高',
-    done: false,
-    note: '先看懂状态如何显示到页面上。',
-  },
-  {
-    id: 2,
-    title: '整理 Flex 布局笔记',
-    category: 'CSS',
-    priority: '中',
-    done: true,
-    note: '把主轴、交叉轴、gap 写成自己的话。',
-  },
-  {
-    id: 3,
-    title: '完成任务清单项目第一版页面架子',
-    category: '项目',
-    priority: '高',
-    done: false,
-    note: '先不追求功能完整，重点是看清页面分区。',
-  },
-])
+const tasks = ref([])
 
+const categories = computed(() => {
+  const taskCategories = tasks.value.map((task) => task.category)
+  return [...new Set([...defaultCategories, ...taskCategories])]
+})
 const totalCount = computed(() => tasks.value.length)
 const doneCount = computed(() => tasks.value.filter((task) => task.done).length)
 const pendingCount = computed(() => totalCount.value - doneCount.value)
@@ -68,34 +57,35 @@ const filteredTasks = computed(() => {
   return result
 })
 
-function submitTask() {
+async function submitTask() {
   const title = form.value.title.trim()
-  if (!title) {
+  if (!title || isSaving.value) {
     return
   }
 
-  if (editingTaskId.value === null) {
-    tasks.value.push({
-      id: Date.now(),
-      title: title,
-      category: form.value.category,
-      priority: form.value.priority,
-      done: false,
-      note: form.value.note,
-    })
-  } else {
-    const task = tasks.value.find((task) => task.id === editingTaskId.value)
-    if (!task) {
-      return
+  isSaving.value = true
+  errorMessage.value = ''
+
+  try {
+    const submitForm = {
+      ...form.value,
+      title,
     }
 
-    task.title = title
-    task.category = form.value.category
-    task.priority = form.value.priority
-    task.note = form.value.note
-  }
+    if (editingTaskId.value === null) {
+      const createdTask = await createTaskApi(submitForm)
+      tasks.value = [createdTask, ...tasks.value]
+    } else {
+      const updatedTask = await updateTaskApi(editingTaskId.value, submitForm)
+      replaceTask(updatedTask)
+    }
 
-  clearForm()
+    clearForm()
+  } catch (error) {
+    errorMessage.value = error.message || '任务保存失败，请稍后再试。'
+  } finally {
+    isSaving.value = false
+  }
 }
 
 function clearForm() {
@@ -108,12 +98,40 @@ function clearForm() {
   editingTaskId.value = null
 }
 
-function toggleTask(task) {
-  task.done = !task.done
+async function toggleTask(task) {
+  if (activeTaskId.value !== null) {
+    return
+  }
+
+  activeTaskId.value = task.id
+  errorMessage.value = ''
+
+  try {
+    const updatedTask = await toggleTaskStatus(task.id)
+    replaceTask(updatedTask)
+  } catch (error) {
+    errorMessage.value = error.message || '任务状态更新失败，请稍后再试。'
+  } finally {
+    activeTaskId.value = null
+  }
 }
 
-function deleteTask(taskId) {
-  tasks.value = tasks.value.filter((task) => task.id !== taskId)
+async function deleteTask(taskId) {
+  if (activeTaskId.value !== null) {
+    return
+  }
+
+  activeTaskId.value = taskId
+  errorMessage.value = ''
+
+  try {
+    await deleteTaskApi(taskId)
+    tasks.value = tasks.value.filter((task) => task.id !== taskId)
+  } catch (error) {
+    errorMessage.value = error.message || '任务删除失败，请稍后再试。'
+  } finally {
+    activeTaskId.value = null
+  }
 }
 
 function editTask(task) {
@@ -126,38 +144,34 @@ function editTask(task) {
   }
 }
 
-function clearLocalStorage() {
-  localStorage.removeItem(TASK_STORAGE_KEY)
-}
-
-onMounted(() => {
-  const savedTasks = localStorage.getItem(TASK_STORAGE_KEY)
-
-  if (!savedTasks) {
+async function loadTasks() {
+  if (isLoading.value) {
     return
   }
 
-  try {
-    const parsedTasks = JSON.parse(savedTasks)
+  isLoading.value = true
+  errorMessage.value = ''
 
-    if (!Array.isArray(parsedTasks)) {
-      localStorage.removeItem(TASK_STORAGE_KEY)
-      return
+  try {
+    tasks.value = await getTasks()
+  } catch (error) {
+    errorMessage.value = error.message || '任务加载失败，请稍后再试。'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+function replaceTask(updatedTask) {
+  tasks.value = tasks.value.map((task) => {
+    if (task.id === updatedTask.id) {
+      return updatedTask
     }
 
-    tasks.value = parsedTasks
-  } catch {
-    localStorage.removeItem(TASK_STORAGE_KEY)
-  }
-})
+    return task
+  })
+}
 
-watch(
-  tasks,
-  (newTasks) => {
-    localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(newTasks))
-  },
-  { deep: true },
-)
+onMounted(loadTasks)
 </script>
 
 <template>
@@ -166,7 +180,7 @@ watch(
       <p class="eyebrow">Vue 练习项目 01</p>
       <h1>学习计划管理器</h1>
       <p class="intro">
-        用一个小任务清单练习表单输入、列表渲染、筛选和浏览器本地缓存。
+        用一个小任务清单练习表单输入、列表渲染、筛选和后端接口调用。
       </p>
     </section>
 
@@ -177,6 +191,7 @@ watch(
       v-model:note="form.note"
       :categories="categories"
       :is-editing="editingTaskId !== null"
+      :is-saving="isSaving"
       @submit-task="submitTask"
       @clear-form="clearForm"
     />
@@ -198,7 +213,10 @@ watch(
     <TaskList
       :tasks="tasks"
       :filtered-tasks="filteredTasks"
-      @clear-local-storage="clearLocalStorage"
+      :is-loading="isLoading"
+      :active-task-id="activeTaskId"
+      :error-message="errorMessage"
+      @reload-tasks="loadTasks"
       @toggle-task="toggleTask"
       @edit-task="editTask"
       @delete-task="deleteTask"

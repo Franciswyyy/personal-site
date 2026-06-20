@@ -128,7 +128,7 @@ function clearMessages() {
     </section>
 
     <section>
-      <h2>留言预览</h2>
+      <h2>留言预览123</h2>
       <form class="message-form" @submit.prevent="saveMessage">
         <label>
           你的名字

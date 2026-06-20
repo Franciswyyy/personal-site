@@ -6,6 +6,7 @@ defineProps({
   priority: String,
   note: String,
   isEditing: Boolean,
+  isSaving: Boolean,
 })
 
 const emit = defineEmits([
@@ -80,13 +81,15 @@ const emit = defineEmits([
         <button
           class="primary-button"
           type="button"
+          :disabled="isSaving"
           @click="emit('submit-task')"
         >
-          {{ isEditing ? '保存修改' : '添加任务' }}
+          {{ isSaving ? '保存中...' : isEditing ? '保存修改' : '添加任务' }}
         </button>
         <button
           class="ghost-button"
           type="button"
+          :disabled="isSaving"
           @click="emit('clear-form')"
         >
           清空
