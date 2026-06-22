@@ -48,11 +48,17 @@ The current goal is not to generate a polished website all at once. The goal is 
 - After meaningful milestones, suggest a commit with a clear message.
 - Do not rewrite history, reset, or discard changes unless the user explicitly asks.
 
-## Current Site Structure
+## Current Repository Structure
 
-- `index.html` contains the page structure.
-- `styles.css` contains the visual design, layout, and responsive rules.
-- The first page has:
+- `01-vanilla-personal-site` contains the original personal website.
+  - `index.html` contains the page structure.
+  - `styles.css` contains the visual design, layout, and responsive rules.
+  - `script.js` contains the basic page interactions.
+- `02-vue-cdn-demo` contains the Vue CDN learning demo.
+- `03-vue-vite-demo` contains the Vue and Vite learning demo.
+- `04-vue-task-planner-frontend` contains the task planner Vue frontend.
+- `05-vue-task-planner-backend` contains the task planner Spring Boot backend.
+- The personal website page has:
   - Header navigation
   - Hero section with self-introduction and tech stack
   - Projects section
